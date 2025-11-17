@@ -49,6 +49,15 @@
     background-size: 50px 50px;
   }
 
+  /* Custom border widths */
+  .border-3 {
+    border-width: 3px;
+  }
+
+  .border-l-3 {
+    border-left-width: 3px;
+  }
+
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 12px;

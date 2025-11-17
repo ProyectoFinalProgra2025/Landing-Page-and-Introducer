@@ -83,12 +83,18 @@ export default function Navbar() {
 
           {/* CTA Buttons */}
           <div className="hidden lg:flex items-center space-x-4">
-            <button className="px-6 py-2 text-black font-bold border-2 border-black hover:bg-gray-100 transition-colors">
+            <Link 
+              to="/login"
+              className="px-6 py-2 text-black font-bold border-2 border-black hover:bg-gray-100 transition-colors"
+            >
               Iniciar Sesión
-            </button>
-            <button className="px-6 py-2 bg-brand-yellow-500 text-black font-bold border-2 border-black shadow-brutal-sm hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
+            </Link>
+            <Link 
+              to="/register"
+              className="px-6 py-2 bg-brand-yellow-500 text-black font-bold border-2 border-black shadow-brutal-sm hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+            >
               Prueba Gratis
-            </button>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -143,12 +149,18 @@ export default function Navbar() {
               </div>
             ))}
             <div className="pt-4 space-y-2">
-              <button className="w-full px-6 py-3 text-black font-bold border-2 border-black bg-white hover:bg-gray-100">
+              <Link 
+                to="/login"
+                className="block w-full px-6 py-3 text-black font-bold border-2 border-black bg-white hover:bg-gray-100 text-center"
+              >
                 Iniciar Sesión
-              </button>
-              <button className="w-full px-6 py-3 bg-brand-yellow-500 text-black font-bold border-2 border-black">
+              </Link>
+              <Link 
+                to="/register"
+                className="block w-full px-6 py-3 bg-brand-yellow-500 text-black font-bold border-2 border-black text-center"
+              >
                 Prueba Gratis
-              </button>
+              </Link>
             </div>
           </div>
         </div>

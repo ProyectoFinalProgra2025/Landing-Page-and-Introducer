@@ -1,4 +1,5 @@
 import { ArrowRight, PlayCircle, Zap, Users, TrendingUp } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Hero() {
   return (
@@ -39,14 +40,20 @@ export default function Hero() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="group px-8 py-4 bg-black text-white font-bold border-4 border-black shadow-brutal hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all flex items-center justify-center space-x-2">
+              <Link 
+                to="/register"
+                className="group px-8 py-4 bg-black text-white font-bold border-4 border-black shadow-brutal hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all flex items-center justify-center space-x-2"
+              >
                 <span>Comenzar Prueba Gratis</span>
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-              <button className="group px-8 py-4 bg-white text-black font-bold border-4 border-black shadow-brutal hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all flex items-center justify-center space-x-2">
+              </Link>
+              <Link 
+                to="/login"
+                className="group px-8 py-4 bg-white text-black font-bold border-4 border-black shadow-brutal hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all flex items-center justify-center space-x-2"
+              >
                 <PlayCircle className="h-5 w-5" />
                 <span>Ver Demo en Vivo</span>
-              </button>
+              </Link>
             </div>
 
             {/* Trust Indicators */}

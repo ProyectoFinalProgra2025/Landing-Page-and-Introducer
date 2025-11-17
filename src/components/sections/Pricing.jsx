@@ -1,4 +1,5 @@
 import { Check, X, Zap, Building2, Rocket } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Pricing() {
   const plans = [
@@ -167,13 +168,16 @@ export default function Pricing() {
                     </ul>
 
                     {/* CTA Button */}
-                    <button className={`w-full px-6 py-4 font-black border-4 border-black transition-all hover:translate-x-1 hover:translate-y-1 ${
-                      plan.popular
-                        ? 'bg-black text-white hover:bg-gray-900'
-                        : 'bg-white text-black hover:bg-gray-100'
-                    }`}>
+                    <Link 
+                      to="/register"
+                      className={`block w-full px-6 py-4 font-black border-4 border-black transition-all hover:translate-x-1 hover:translate-y-1 text-center ${
+                        plan.popular
+                          ? 'bg-black text-white hover:bg-gray-900'
+                          : 'bg-white text-black hover:bg-gray-100'
+                      }`}
+                    >
                       {plan.cta}
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
