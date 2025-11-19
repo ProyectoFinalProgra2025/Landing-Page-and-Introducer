@@ -90,17 +90,17 @@ const CompaniesManagement = () => {
 
   const getEstadoBadge = (estado) => {
     const estados = {
-      Pending: { color: 'bg-yellow-100 text-yellow-800', icon: Clock, text: 'Pendiente' },
-      Approved: { color: 'bg-green-100 text-green-800', icon: CheckCircle, text: 'Aprobada' },
-      Rejected: { color: 'bg-red-100 text-red-800', icon: XCircle, text: 'Rechazada' },
+      Pending: { color: 'bg-brand-yellow-400', icon: Clock, text: 'Pendiente' },
+      Approved: { color: 'bg-green-400', icon: CheckCircle, text: 'Aprobada' },
+      Rejected: { color: 'bg-red-400', icon: XCircle, text: 'Rechazada' },
     };
 
-    const estadoInfo = estados[estado] || { color: 'bg-gray-100 text-gray-800', icon: AlertCircle, text: estado };
+    const estadoInfo = estados[estado] || { color: 'bg-gray-400', icon: AlertCircle, text: estado };
     const Icon = estadoInfo.icon;
 
     return (
-      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium ${estadoInfo.color}`}>
-        <Icon className="h-3 w-3" />
+      <span className={`inline-flex items-center gap-1 px-3 py-1 border-2 border-black text-xs font-black uppercase tracking-wider ${estadoInfo.color} text-black`}>
+        <Icon className="h-4 w-4" />
         {estadoInfo.text}
       </span>
     );
@@ -113,42 +113,45 @@ const CompaniesManagement = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Gestión de Empresas</h1>
-        <p className="mt-2 text-gray-600">Administra las solicitudes y empresas registradas</p>
+      <div className="bg-white border-4 border-black shadow-brutal p-6">
+        <h1 className="text-4xl font-black text-black">Gestión de Empresas</h1>
+        <div className="w-32 h-1 bg-brand-cyan-500 mt-2"></div>
+        <p className="mt-3 text-base font-bold text-gray-700 uppercase tracking-wider">
+          Administra las solicitudes y empresas registradas
+        </p>
       </div>
 
       {/* Filtros */}
-      <div className="bg-white p-4 rounded-lg shadow space-y-4">
+      <div className="bg-white border-4 border-black shadow-brutal p-6 space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Búsqueda */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-bold text-black mb-2 uppercase tracking-wider">
               Buscar
             </label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-black" />
               <input
                 type="text"
                 placeholder="Buscar por nombre o email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 border-2 border-black font-semibold focus:ring-0 focus:border-brand-cyan-500 focus:outline-none"
               />
             </div>
           </div>
 
           {/* Filtro por estado */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-bold text-black mb-2 uppercase tracking-wider">
               Filtrar por Estado
             </label>
             <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-black" />
               <select
                 value={selectedEstado}
                 onChange={(e) => setSelectedEstado(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                className="w-full pl-10 pr-4 py-3 border-2 border-black font-semibold focus:ring-0 focus:border-brand-cyan-500 focus:outline-none appearance-none"
               >
                 <option value="">Todos los estados</option>
                 <option value="Pendiente">Pendiente</option>
@@ -162,76 +165,80 @@ const CompaniesManagement = () => {
 
       {/* Error */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
-          <AlertCircle className="h-5 w-5" />
-          <span>{error}</span>
+        <div className="bg-red-100 border-4 border-black shadow-brutal px-6 py-4 flex items-center gap-3">
+          <div className="w-12 h-12 bg-red-500 border-2 border-black flex items-center justify-center">
+            <AlertCircle className="h-6 w-6 text-white" />
+          </div>
+          <span className="font-bold text-black">{error}</span>
         </div>
       )}
 
       {/* Loading */}
       {loading ? (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">Cargando empresas...</p>
+        <div className="bg-white border-4 border-black shadow-brutal p-12 text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-black border-t-brand-cyan-500"></div>
+          <p className="mt-6 text-xl font-black text-black uppercase tracking-wider">Cargando empresas...</p>
         </div>
       ) : (
         <>
           {/* Lista de empresas */}
-          <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="bg-white border-4 border-black shadow-brutal overflow-hidden">
             {filteredEmpresas.length === 0 ? (
               <div className="text-center py-12">
-                <Building2 className="mx-auto h-12 w-12 text-gray-400" />
-                <p className="mt-4 text-gray-600">No se encontraron empresas</p>
+                <div className="w-24 h-24 bg-gray-200 border-4 border-black mx-auto flex items-center justify-center">
+                  <Building2 className="h-12 w-12 text-black" />
+                </div>
+                <p className="mt-6 text-xl font-black text-black uppercase">No se encontraron empresas</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y-4 divide-black">
+                  <thead className="bg-brand-cyan-500">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-black text-black uppercase tracking-wider border-r-2 border-black">
                         Empresa
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-black text-black uppercase tracking-wider border-r-2 border-black">
                         Fecha Registro
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-black text-black uppercase tracking-wider border-r-2 border-black">
                         Estado
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-black text-black uppercase tracking-wider">
                         Acciones
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white divide-y-2 divide-gray-300">
                     {filteredEmpresas.map((empresa) => (
-                      <tr key={empresa.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4">
+                      <tr key={empresa.id} className="hover:bg-brand-cyan-50 transition-colors">
+                        <td className="px-6 py-4 border-r-2 border-gray-300">
                           <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded flex items-center justify-center">
-                              <Building2 className="h-5 w-5 text-blue-600" />
+                            <div className="flex-shrink-0 h-12 w-12 bg-brand-cyan-500 border-2 border-black flex items-center justify-center">
+                              <Building2 className="h-6 w-6 text-black" />
                             </div>
                             <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{empresa.nombre}</div>
-                              <div className="text-sm text-gray-500">ID: {empresa.id}</div>
+                              <div className="text-sm font-bold text-black">{empresa.nombre}</div>
+                              <div className="text-xs font-semibold text-gray-600">ID: {empresa.id}</div>
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap border-r-2 border-gray-300">
+                          <div className="text-sm font-bold text-black">
                             {new Date(empresa.createdAt).toLocaleDateString('es-ES', {
                               year: 'numeric',
                               month: 'short',
                               day: 'numeric'
                             })}
                           </div>
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs font-semibold text-gray-600">
                             {new Date(empresa.createdAt).toLocaleTimeString('es-ES', {
                               hour: '2-digit',
                               minute: '2-digit'
                             })}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-6 py-4 whitespace-nowrap border-r-2 border-gray-300">
                           {getEstadoBadge(empresa.estado)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -240,7 +247,7 @@ const CompaniesManagement = () => {
                               <>
                                 <button
                                   onClick={() => handleAprobar(empresa.id)}
-                                  className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                  className="inline-flex items-center px-3 py-2 border-2 border-black text-xs font-bold bg-green-400 text-black hover:bg-green-500 transition-colors"
                                   title="Aprobar"
                                 >
                                   <CheckCircle className="h-4 w-4 mr-1" />
@@ -248,7 +255,7 @@ const CompaniesManagement = () => {
                                 </button>
                                 <button
                                   onClick={() => handleRechazar(empresa.id)}
-                                  className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                  className="inline-flex items-center px-3 py-2 border-2 border-black text-xs font-bold bg-red-400 text-black hover:bg-red-500 transition-colors"
                                   title="Rechazar"
                                 >
                                   <XCircle className="h-4 w-4 mr-1" />
@@ -258,17 +265,17 @@ const CompaniesManagement = () => {
                             )}
                             <button
                               onClick={() => handleVerEstadisticas(empresa.id)}
-                              className="text-blue-600 hover:text-blue-900"
+                              className="p-2 bg-brand-cyan-500 border-2 border-black hover:bg-brand-cyan-600 transition-colors"
                               title="Ver estadísticas"
                             >
-                              <BarChart3 className="h-5 w-5" />
+                              <BarChart3 className="h-5 w-5 text-black" />
                             </button>
                             <button
                               onClick={() => handleEliminar(empresa.id)}
-                              className="text-red-600 hover:text-red-900"
+                              className="p-2 bg-red-400 border-2 border-black hover:bg-red-500 transition-colors"
                               title="Eliminar"
                             >
-                              <Trash2 className="h-5 w-5" />
+                              <Trash2 className="h-5 w-5 text-black" />
                             </button>
                           </div>
                         </td>
@@ -284,26 +291,29 @@ const CompaniesManagement = () => {
 
       {/* Modal de Estadísticas */}
       {showStatsModal && estadisticas && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+          <div className="bg-white border-4 border-black shadow-brutal max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Estadísticas de la Empresa</h2>
+                <div>
+                  <h2 className="text-3xl font-black text-black uppercase">Estadísticas de la Empresa</h2>
+                  <div className="w-24 h-1 bg-brand-cyan-500 mt-2"></div>
+                </div>
                 <button
                   onClick={() => setShowStatsModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="p-2 bg-red-400 border-2 border-black hover:bg-red-500 transition-colors"
                 >
-                  <XCircle className="h-6 w-6" />
+                  <XCircle className="h-6 w-6 text-black" />
                 </button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Object.entries(estadisticas).map(([key, value]) => (
-                  <div key={key} className="bg-gray-50 p-4 rounded-lg">
-                    <div className="text-sm text-gray-600 capitalize">
+                  <div key={key} className="bg-brand-cyan-100 border-2 border-black p-4">
+                    <div className="text-xs font-bold text-gray-700 uppercase tracking-wider">
                       {key.replace(/([A-Z])/g, ' $1').trim()}
                     </div>
-                    <div className="text-2xl font-bold text-gray-900 mt-1">
+                    <div className="text-3xl font-black text-black mt-2">
                       {typeof value === 'object' ? JSON.stringify(value) : value}
                     </div>
                   </div>
@@ -313,7 +323,7 @@ const CompaniesManagement = () => {
               <div className="mt-6 flex justify-end">
                 <button
                   onClick={() => setShowStatsModal(false)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="px-6 py-3 bg-black text-white font-bold border-2 border-black shadow-brutal-sm hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
                 >
                   Cerrar
                 </button>

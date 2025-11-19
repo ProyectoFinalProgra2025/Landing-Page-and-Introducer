@@ -42,8 +42,8 @@ const CompanyStatistics = () => {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">Cargando estadísticas...</p>
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-black border-t-brand-cyan-500"></div>
+          <p className="mt-4 text-xl font-black text-black uppercase tracking-wider">Cargando estadísticas...</p>
         </div>
       </div>
     );
@@ -51,12 +51,12 @@ const CompanyStatistics = () => {
 
   if (error) {
     return (
-      <div className="bg-red-50 border-l-4 border-red-500 p-4">
-        <div className="flex">
-          <AlertCircle className="h-5 w-5 text-red-500" />
-          <div className="ml-3">
-            <p className="text-sm text-red-700">{error}</p>
+      <div className="bg-red-100 border-4 border-black shadow-brutal p-6">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-red-500 border-2 border-black flex items-center justify-center">
+            <AlertCircle className="h-6 w-6 text-white" />
           </div>
+          <p className="text-lg font-bold text-black">{error}</p>
         </div>
       </div>
     );
@@ -69,17 +69,15 @@ const CompanyStatistics = () => {
       name: 'Total Trabajadores',
       value: estadisticas.totalTrabajadores,
       icon: Users,
-      color: 'bg-blue-500',
-      bgColor: 'bg-blue-50',
-      textColor: 'text-blue-600',
+      color: 'brand-cyan-500',
+      bgColor: 'brand-cyan-100',
     },
     {
       name: 'Trabajadores Activos',
       value: estadisticas.trabajadoresActivos,
       icon: CheckCircle,
-      color: 'bg-green-500',
-      bgColor: 'bg-green-50',
-      textColor: 'text-green-600',
+      color: 'brand-yellow-400',
+      bgColor: 'brand-yellow-100',
     },
   ];
 
@@ -88,77 +86,78 @@ const CompanyStatistics = () => {
       name: 'Total Tareas',
       value: estadisticas.totalTareas,
       icon: BarChart3,
-      color: 'bg-purple-500',
-      bgColor: 'bg-purple-50',
-      textColor: 'text-purple-600',
+      color: 'black',
+      bgColor: 'gray-200',
+      iconColor: 'brand-yellow-400',
     },
     {
       name: 'Pendientes',
       value: estadisticas.tareasPendientes,
       icon: Clock,
-      color: 'bg-yellow-500',
-      bgColor: 'bg-yellow-50',
-      textColor: 'text-yellow-600',
+      color: 'brand-yellow-400',
+      bgColor: 'brand-yellow-100',
+      iconColor: 'black',
     },
     {
       name: 'Asignadas',
       value: estadisticas.tareasAsignadas,
       icon: PlayCircle,
-      color: 'bg-blue-500',
-      bgColor: 'bg-blue-50',
-      textColor: 'text-blue-600',
+      color: 'brand-cyan-500',
+      bgColor: 'brand-cyan-100',
+      iconColor: 'black',
     },
     {
       name: 'Aceptadas',
       value: estadisticas.tareasAceptadas,
       icon: TrendingUp,
-      color: 'bg-indigo-500',
-      bgColor: 'bg-indigo-50',
-      textColor: 'text-indigo-600',
+      color: 'purple-500',
+      bgColor: 'purple-100',
+      iconColor: 'black',
     },
     {
       name: 'Finalizadas',
       value: estadisticas.tareasFinalizadas,
       icon: CheckCircle,
-      color: 'bg-green-500',
-      bgColor: 'bg-green-50',
-      textColor: 'text-green-600',
+      color: 'green-400',
+      bgColor: 'green-100',
+      iconColor: 'black',
     },
     {
       name: 'Canceladas',
       value: estadisticas.tareasCanceladas,
       icon: XCircle,
-      color: 'bg-red-500',
-      bgColor: 'bg-red-50',
-      textColor: 'text-red-600',
+      color: 'red-400',
+      bgColor: 'red-100',
+      iconColor: 'black',
     },
   ];
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Estadísticas</h1>
-        <p className="mt-1 text-sm text-gray-600">
+      <div className="bg-white border-4 border-black shadow-brutal p-6">
+        <h1 className="text-4xl font-black text-black">Estadísticas</h1>
+        <div className="w-32 h-1 bg-brand-cyan-500 mt-2"></div>
+        <p className="mt-3 text-base font-bold text-gray-700 uppercase tracking-wider">
           Métricas y análisis de {estadisticas.nombreEmpresa}
         </p>
       </div>
 
       {/* Estadísticas de Trabajadores */}
       <div>
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Equipo de Trabajo</h2>
+        <h2 className="text-2xl font-black text-black mb-4 uppercase">Equipo de Trabajo</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {trabajadoresStats.map((stat) => {
             const Icon = stat.icon;
             return (
-              <div key={stat.name} className="bg-white rounded-lg shadow p-6">
+              <div key={stat.name} className="bg-white border-4 border-black shadow-brutal p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">{stat.name}</p>
-                    <p className="text-3xl font-semibold text-gray-900 mt-2">{stat.value}</p>
+                    <p className="text-sm font-bold text-gray-700 uppercase tracking-wider">{stat.name}</p>
+                    <p className="text-5xl font-black text-black mt-2">{stat.value}</p>
                   </div>
-                  <div className={`${stat.bgColor} p-3 rounded-lg`}>
-                    <Icon className={`h-6 w-6 ${stat.textColor}`} />
+                  <div className={`bg-${stat.color} p-4 border-2 border-black`}>
+                    <Icon className="h-8 w-8 text-black" />
                   </div>
                 </div>
               </div>
@@ -169,19 +168,19 @@ const CompanyStatistics = () => {
 
       {/* Estadísticas de Tareas */}
       <div>
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Gestión de Tareas</h2>
+        <h2 className="text-2xl font-black text-black mb-4 uppercase">Gestión de Tareas</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {tareasStats.map((stat) => {
             const Icon = stat.icon;
             return (
-              <div key={stat.name} className="bg-white rounded-lg shadow p-6">
+              <div key={stat.name} className="bg-white border-4 border-black shadow-brutal p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">{stat.name}</p>
-                    <p className="text-3xl font-semibold text-gray-900 mt-2">{stat.value}</p>
+                    <p className="text-sm font-bold text-gray-700 uppercase tracking-wider">{stat.name}</p>
+                    <p className="text-5xl font-black text-black mt-2">{stat.value}</p>
                   </div>
-                  <div className={`${stat.bgColor} p-3 rounded-lg`}>
-                    <Icon className={`h-6 w-6 ${stat.textColor}`} />
+                  <div className={`bg-${stat.color} p-4 border-2 border-black`}>
+                    <Icon className={`h-8 w-8 ${stat.iconColor ? `text-${stat.iconColor}` : 'text-black'}`} />
                   </div>
                 </div>
               </div>
@@ -191,20 +190,20 @@ const CompanyStatistics = () => {
       </div>
 
       {/* Progreso */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Resumen de Progreso</h2>
-        <div className="space-y-4">
+      <div className="bg-white border-4 border-black shadow-brutal p-6">
+        <h2 className="text-2xl font-black text-black mb-6 uppercase">Resumen de Progreso</h2>
+        <div className="space-y-6">
           {estadisticas.totalTareas > 0 && (
             <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-gray-600">Tareas Completadas</span>
-                <span className="font-medium text-gray-900">
+              <div className="flex justify-between mb-3">
+                <span className="text-base font-bold text-black uppercase tracking-wider">Tareas Completadas</span>
+                <span className="text-2xl font-black text-black">
                   {Math.round((estadisticas.tareasFinalizadas / estadisticas.totalTareas) * 100)}%
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full h-8 bg-gray-200 border-2 border-black">
                 <div
-                  className="bg-green-500 h-2 rounded-full transition-all"
+                  className="h-full bg-green-400 border-r-2 border-black transition-all"
                   style={{
                     width: `${(estadisticas.tareasFinalizadas / estadisticas.totalTareas) * 100}%`,
                   }}
@@ -215,15 +214,15 @@ const CompanyStatistics = () => {
 
           {estadisticas.totalTrabajadores > 0 && (
             <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-gray-600">Trabajadores Activos</span>
-                <span className="font-medium text-gray-900">
+              <div className="flex justify-between mb-3">
+                <span className="text-base font-bold text-black uppercase tracking-wider">Trabajadores Activos</span>
+                <span className="text-2xl font-black text-black">
                   {Math.round((estadisticas.trabajadoresActivos / estadisticas.totalTrabajadores) * 100)}%
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full h-8 bg-gray-200 border-2 border-black">
                 <div
-                  className="bg-blue-500 h-2 rounded-full transition-all"
+                  className="h-full bg-brand-cyan-500 border-r-2 border-black transition-all"
                   style={{
                     width: `${(estadisticas.trabajadoresActivos / estadisticas.totalTrabajadores) * 100}%`,
                   }}
