@@ -191,4 +191,82 @@ export const empresasExtendedService = {
   },
 };
 
+// ============= TAREAS ENDPOINTS =============
+
+export const tareasService = {
+  // Crear tarea
+  create: async (data) => {
+    const response = await api.post('/Tareas', data);
+    return response.data;
+  },
+
+  // Listar tareas (con filtros)
+  getAll: async (filters = {}) => {
+    const response = await api.get('/Tareas', { params: filters });
+    return response.data.data;
+  },
+
+  // Obtener tarea por ID
+  getById: async (id) => {
+    const response = await api.get(`/Tareas/${id}`);
+    return response.data.data;
+  },
+
+  // Asignar manual
+  asignarManual: async (id, usuarioId) => {
+    const response = await api.put(`/Tareas/${id}/asignar-manual`, { usuarioId });
+    return response.data;
+  },
+
+  // Asignar automático
+  asignarAutomatico: async (id, forzarReasignacion = false) => {
+    const response = await api.put(`/Tareas/${id}/asignar-automatico`, { forzarReasignacion });
+    return response.data;
+  },
+
+  // Aceptar tarea
+  aceptar: async (id) => {
+    const response = await api.put(`/Tareas/${id}/aceptar`);
+    return response.data;
+  },
+
+  // Mis tareas
+  getMis: async (filters = {}) => {
+    const response = await api.get('/Tareas/mis', { params: filters });
+    return response.data.data;
+  },
+
+  // Finalizar tarea
+  finalizar: async (id, data) => {
+    const response = await api.put(`/Tareas/${id}/finalizar`, data);
+    return response.data;
+  },
+
+  // Cancelar tarea
+  cancelar: async (id, motivo) => {
+    const response = await api.put(`/Tareas/${id}/cancelar`, JSON.stringify(motivo), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+    return response.data;
+  },
+
+  // Delegar tarea
+  delegar: async (id, data) => {
+    const response = await api.put(`/Tareas/${id}/delegar`, data);
+    return response.data;
+  },
+
+  // Aceptar delegación
+  aceptarDelegacion: async (id, data) => {
+    const response = await api.put(`/Tareas/${id}/aceptar-delegacion`, data);
+    return response.data;
+  },
+
+  // Rechazar delegación
+  rechazarDelegacion: async (id, data) => {
+    const response = await api.put(`/Tareas/${id}/rechazar-delegacion`, data);
+    return response.data;
+  },
+};
+
 export default api;
