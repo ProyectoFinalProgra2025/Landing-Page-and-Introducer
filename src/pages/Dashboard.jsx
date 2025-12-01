@@ -8,7 +8,8 @@ import {
   Menu,
   X,
   Users,
-  BarChart3
+  BarChart3,
+  ListChecks
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -58,6 +59,12 @@ const Dashboard = () => {
           roles: ['AdminEmpresa'],
         },
         {
+          name: 'Tareas',
+          path: '/dashboard/tasks',
+          icon: ListChecks,
+          roles: ['AdminEmpresa'],
+        },
+        {
           name: 'Estadísticas',
           path: '/dashboard/statistics',
           icon: BarChart3,
@@ -66,8 +73,22 @@ const Dashboard = () => {
       );
     }
 
-    // Manager items could be added here if we had specific pages
-    // For now, they just use the main Dashboard view
+    if (user?.rol === 'ManagerDepartamento') {
+      items.push(
+        {
+          name: 'Tareas',
+          path: '/dashboard/tasks',
+          icon: ListChecks,
+          roles: ['ManagerDepartamento'],
+        },
+        {
+          name: 'Estadísticas',
+          path: '/dashboard/statistics',
+          icon: BarChart3,
+          roles: ['ManagerDepartamento'],
+        }
+      );
+    }
 
     return items;
   };

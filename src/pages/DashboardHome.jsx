@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { empresasService, tareasService } from '../services/api';
+import { empresasService } from '../services/api';
 import {
   Building2,
   Clock,
@@ -11,15 +11,37 @@ import {
   BarChart3,
   ArrowRight,
   Briefcase,
-  AlertCircle,
-  Smartphone
+  Smartphone,
+  PlusCircle,
+  ListChecks,
+  TrendingUp
 } from 'lucide-react';
+
+// New components
+import StatCard, { MiniStatCard, StatGrid } from '../components/dashboard/StatCard';
+import QuickActionCard, { QuickActionsGrid } from '../components/dashboard/QuickActionCard';
+import RealtimeIndicator, { ConnectionStatusBanner } from '../components/dashboard/RealtimeIndicator';
+import TaskList, { GroupedTaskList } from '../components/tasks/TaskList';
+import CreateTaskModal from '../components/tasks/CreateTaskModal';
+import { useSignalR } from '../hooks/useSignalR';
+import { useTasks, useMyTasks } from '../hooks/useTasks';
 
 const DashboardHome = () => {
   const { user } = useAuth();
   const [estadisticas, setEstadisticas] = useState(null);
-  const [managerStats, setManagerStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  // SignalR connection
+  const { isConnected } = useSignalR();
+
+  // Get tasks for ManagerDepartamento
+  const {
+    tasks: managerTasks,
+    loading: tasksLoading,
+    createTask,
+    refresh: refreshTasks
+  } = useTasks({}, user?.rol === 'ManagerDepartamento');
 
   useEffect(() => {
     const loadData = async () => {
@@ -28,20 +50,6 @@ const DashboardHome = () => {
         if (user?.rol === 'AdminEmpresa' && user?.empresaId) {
           const data = await empresasService.getEstadisticas(user.empresaId);
           setEstadisticas(data);
-        } else if (user?.rol === 'ManagerDepartamento') {
-          // Fetch tasks for manager to calculate stats
-          // We use getAll because the backend filters by the manager's scope (department/assigned)
-          const tasks = await tareasService.getAll();
-
-          const stats = {
-            total: tasks.length,
-            pendientes: tasks.filter(t => t.estado === 0).length, // PENDIENTE
-            enProgreso: tasks.filter(t => t.estado === 1).length, // EN_PROGRESO
-            finalizadas: tasks.filter(t => t.estado === 2).length, // FINALIZADA
-            canceladas: tasks.filter(t => t.estado === 3).length, // CANCELADA
-            recentTasks: tasks.slice(0, 5) // Top 5 recent
-          };
-          setManagerStats(stats);
         }
       } catch (err) {
         console.error('Error al cargar datos:', err);
@@ -53,20 +61,22 @@ const DashboardHome = () => {
     loadData();
   }, [user]);
 
-  // Componente de Tarjeta de Estadística
-  const StatCard = ({ title, value, icon: Icon, colorClass, borderClass }) => (
-    <div className={`bg-white border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-6 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-200`}>
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-black text-gray-600 uppercase tracking-wider">{title}</p>
-          <p className="text-4xl font-black text-black mt-2">{value}</p>
-        </div>
-        <div className={`${colorClass} p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}>
-          <Icon className="h-8 w-8 text-black" />
-        </div>
-      </div>
-    </div>
-  );
+  // Calculate manager stats from tasks
+  const managerStats = managerTasks ? {
+    total: managerTasks.length,
+    pendientes: managerTasks.filter(t => t.estado === 0).length,
+    asignadas: managerTasks.filter(t => t.estado === 1).length,
+    enProgreso: managerTasks.filter(t => t.estado === 2).length,
+    finalizadas: managerTasks.filter(t => t.estado === 3).length,
+    canceladas: managerTasks.filter(t => t.estado === 4).length,
+    recentTasks: managerTasks.slice(0, 5)
+  } : null;
+
+  const handleCreateTask = async (taskData) => {
+    await createTask(taskData);
+    setIsCreateModalOpen(false);
+  };
+
 
   // Vista para AdminGeneral
   if (user?.rol === 'AdminGeneral') {
@@ -126,44 +136,51 @@ const DashboardHome = () => {
   // Vista para AdminEmpresa
   if (user?.rol === 'AdminEmpresa') {
     return (
-      <div className="space-y-8 animate-fade-in">
-        <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan-200 rounded-full border-4 border-black -mr-10 -mt-10 opacity-50"></div>
-          <h1 className="text-4xl md:text-5xl font-black text-black relative z-10">
-            Bienvenido, {user?.nombreCompleto}
-          </h1>
-          <p className="mt-4 text-xl font-bold text-gray-600 uppercase tracking-wider relative z-10">
-            Panel de Control - <span className="text-black bg-brand-cyan-300 px-2 border-2 border-black transform -rotate-1 inline-block">{estadisticas?.nombreEmpresa || 'Tu Empresa'}</span>
-          </p>
-        </div>
-
-        {loading ? (
-          <div className="flex justify-center py-20">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-black"></div>
-          </div>
-        ) : estadisticas ? (
-          <>
-            {/* Estadísticas Rápidas */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <StatCard
-                title="Total Empleados"
-                value={estadisticas.totalTrabajadores}
-                icon={Users}
-                colorClass="bg-brand-cyan-400"
-              />
-              <StatCard
-                title="Empleados Activos"
-                value={estadisticas.trabajadoresActivos}
-                icon={CheckCircle}
-                colorClass="bg-brand-yellow-400"
-              />
-              <StatCard
-                title="Total Tareas"
-                value={estadisticas.totalTareas}
-                icon={Briefcase}
-                colorClass="bg-purple-400"
-              />
+      <>
+        <ConnectionStatusBanner />
+        <div className="space-y-8 animate-fade-in">
+          <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan-200 rounded-full border-4 border-black -mr-10 -mt-10 opacity-50"></div>
+            <div className="flex items-start justify-between relative z-10">
+              <div>
+                <h1 className="text-4xl md:text-5xl font-black text-black">
+                  Bienvenido, {user?.nombreCompleto}
+                </h1>
+                <p className="mt-4 text-xl font-bold text-gray-600 uppercase tracking-wider">
+                  Panel de Control - <span className="text-black bg-brand-cyan-300 px-2 border-2 border-black transform -rotate-1 inline-block">{estadisticas?.nombreEmpresa || 'Tu Empresa'}</span>
+                </p>
+              </div>
+              <RealtimeIndicator variant="badge" />
             </div>
+          </div>
+
+          {loading ? (
+            <div className="flex justify-center py-20">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-black"></div>
+            </div>
+          ) : estadisticas ? (
+            <>
+              {/* Estadísticas Rápidas con StatGrid */}
+              <StatGrid>
+                <StatCard
+                  title="Total Empleados"
+                  value={estadisticas.totalTrabajadores}
+                  icon={Users}
+                  colorClass="bg-brand-cyan-400"
+                />
+                <StatCard
+                  title="Empleados Activos"
+                  value={estadisticas.trabajadoresActivos}
+                  icon={CheckCircle}
+                  colorClass="bg-brand-yellow-400"
+                />
+                <StatCard
+                  title="Total Tareas"
+                  value={estadisticas.totalTareas}
+                  icon={Briefcase}
+                  colorClass="bg-purple-400"
+                />
+              </StatGrid>
 
             {/* Estado de Tareas */}
             <div className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-8">
@@ -203,133 +220,167 @@ const DashboardHome = () => {
               </div>
             </div>
 
-            {/* Accesos Rápidos */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Link
-                to="/dashboard/employees"
-                className="group block bg-white border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-6 hover:bg-brand-cyan-50 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-brand-cyan-400 border-2 border-black flex items-center justify-center group-hover:rotate-12 transition-transform">
-                    <Users className="h-6 w-6 text-black" />
-                  </div>
-                  <ArrowRight className="h-6 w-6 text-black opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <h3 className="text-2xl font-black text-black">Empleados</h3>
-                <p className="text-sm font-bold text-gray-600 mt-2">Gestiona tu equipo de trabajo</p>
-              </Link>
-
-              <Link
-                to="/dashboard/statistics"
-                className="group block bg-white border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-6 hover:bg-brand-yellow-50 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-brand-yellow-400 border-2 border-black flex items-center justify-center group-hover:rotate-12 transition-transform">
-                    <BarChart3 className="h-6 w-6 text-black" />
-                  </div>
-                  <ArrowRight className="h-6 w-6 text-black opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <h3 className="text-2xl font-black text-black">Estadísticas</h3>
-                <p className="text-sm font-bold text-gray-600 mt-2">Métricas y análisis detallados</p>
-              </Link>
-
-              <Link
-                to="/dashboard/my-company"
-                className="group block bg-white border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-6 hover:bg-gray-50 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-black border-2 border-black flex items-center justify-center group-hover:rotate-12 transition-transform">
-                    <Building2 className="h-6 w-6 text-brand-yellow-400" />
-                  </div>
-                  <ArrowRight className="h-6 w-6 text-black opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <h3 className="text-2xl font-black text-black">Mi Empresa</h3>
-                <p className="text-sm font-bold text-gray-600 mt-2">Información y configuración</p>
-              </Link>
-            </div>
-          </>
-        ) : null}
-      </div>
+              {/* Accesos Rápidos con QuickActionsGrid */}
+              <QuickActionsGrid>
+                <QuickActionCard
+                  title="Empleados"
+                  subtitle="Gestiona tu equipo"
+                  icon={Users}
+                  gradient="bg-brand-cyan-300"
+                  onClick={() => window.location.href = '/dashboard/employees'}
+                />
+                <QuickActionCard
+                  title="Estadísticas"
+                  subtitle="Métricas y análisis"
+                  icon={BarChart3}
+                  gradient="bg-brand-yellow-300"
+                  onClick={() => window.location.href = '/dashboard/statistics'}
+                />
+                <QuickActionCard
+                  title="Mi Empresa"
+                  subtitle="Configuración"
+                  icon={Building2}
+                  gradient="bg-gray-300"
+                  onClick={() => window.location.href = '/dashboard/my-company'}
+                />
+              </QuickActionsGrid>
+            </>
+          ) : null}
+        </div>
+      </>
     );
   }
 
   // Vista para ManagerDepartamento
   if (user?.rol === 'ManagerDepartamento') {
     return (
-      <div className="space-y-8 animate-fade-in">
-        <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8">
-          <h1 className="text-4xl md:text-5xl font-black text-black">
-            Hola Manager, {user?.nombreCompleto}
-          </h1>
-          <p className="mt-4 text-xl font-bold text-gray-600 uppercase tracking-wider">
-            Gestión de Departamento
-          </p>
+      <>
+        <ConnectionStatusBanner />
+        <div className="space-y-8 animate-fade-in">
+          {/* Header with Real-time Indicator */}
+          <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-200 rounded-full border-4 border-black -mr-10 -mt-10 opacity-50"></div>
+            <div className="flex items-start justify-between relative z-10">
+              <div>
+                <h1 className="text-4xl md:text-5xl font-black text-black">
+                  Hola Manager, {user?.nombreCompleto}
+                </h1>
+                <p className="mt-4 text-xl font-bold text-gray-600 uppercase tracking-wider">
+                  Gestión de Departamento
+                </p>
+              </div>
+              <RealtimeIndicator variant="badge" />
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <QuickActionsGrid>
+            <QuickActionCard
+              title="Nueva Tarea"
+              subtitle="Crear y asignar tarea"
+              icon={PlusCircle}
+              gradient="bg-brand-cyan-300"
+              onClick={() => setIsCreateModalOpen(true)}
+            />
+            <QuickActionCard
+              title="Ver Todas"
+              subtitle="Gestionar tareas"
+              icon={ListChecks}
+              gradient="bg-brand-yellow-300"
+              onClick={() => window.location.href = '/dashboard/tasks'}
+            />
+            <QuickActionCard
+              title="Reportes"
+              subtitle="Estadísticas detalladas"
+              icon={TrendingUp}
+              gradient="bg-purple-300"
+              onClick={() => window.location.href = '/dashboard/statistics'}
+            />
+          </QuickActionsGrid>
+
+          {/* Statistics */}
+          {(tasksLoading || loading) ? (
+            <div className="flex justify-center py-20">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-black"></div>
+            </div>
+          ) : managerStats ? (
+            <>
+              <StatGrid>
+                <StatCard
+                  title="Total Tareas"
+                  value={managerStats.total}
+                  icon={Briefcase}
+                  colorClass="bg-purple-400"
+                />
+                <StatCard
+                  title="Pendientes"
+                  value={managerStats.pendientes}
+                  icon={Clock}
+                  colorClass="bg-brand-yellow-400"
+                />
+                <StatCard
+                  title="En Progreso"
+                  value={managerStats.asignadas + managerStats.enProgreso}
+                  icon={BarChart3}
+                  colorClass="bg-brand-cyan-400"
+                />
+                <StatCard
+                  title="Finalizadas"
+                  value={managerStats.finalizadas}
+                  icon={CheckCircle}
+                  colorClass="bg-green-400"
+                />
+              </StatGrid>
+
+              {/* Recent Tasks with New Components */}
+              <div className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-black text-black uppercase flex items-center gap-3">
+                    <Clock className="h-8 w-8" />
+                    Tareas Recientes
+                  </h2>
+                  <Link
+                    to="/dashboard/tasks"
+                    className="flex items-center gap-2 px-4 py-2 bg-black text-white border-2 border-black font-bold text-sm hover:bg-gray-800 transition-colors"
+                  >
+                    Ver Todas
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+
+                <TaskList
+                  tasks={managerStats.recentTasks}
+                  viewMode="list"
+                  onTaskClick={(task) => window.location.href = `/dashboard/tasks/${task.id}`}
+                  loading={tasksLoading}
+                  emptyMessage="No hay tareas recientes en tu departamento"
+                />
+              </div>
+
+              {/* Grouped Tasks Overview */}
+              <div className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-8">
+                <h2 className="text-2xl font-black text-black uppercase mb-6 flex items-center gap-3">
+                  <Briefcase className="h-8 w-8" />
+                  Vista General por Estado
+                </h2>
+                <GroupedTaskList
+                  tasks={managerTasks}
+                  onTaskClick={(task) => window.location.href = `/dashboard/tasks/${task.id}`}
+                  loading={tasksLoading}
+                />
+              </div>
+            </>
+          ) : null}
         </div>
 
-        {loading ? (
-          <div className="flex justify-center py-20">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-black"></div>
-          </div>
-        ) : managerStats ? (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <StatCard
-                title="Total Tareas"
-                value={managerStats.total}
-                icon={Briefcase}
-                colorClass="bg-purple-400"
-              />
-              <StatCard
-                title="Pendientes"
-                value={managerStats.pendientes}
-                icon={Clock}
-                colorClass="bg-brand-yellow-400"
-              />
-              <StatCard
-                title="En Progreso"
-                value={managerStats.enProgreso}
-                icon={BarChart3}
-                colorClass="bg-brand-cyan-400"
-              />
-              <StatCard
-                title="Finalizadas"
-                value={managerStats.finalizadas}
-                icon={CheckCircle}
-                colorClass="bg-green-400"
-              />
-            </div>
-
-            <div className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-8">
-              <h2 className="text-2xl font-black text-black mb-6 uppercase flex items-center gap-3">
-                <Clock className="h-8 w-8" />
-                Tareas Recientes
-              </h2>
-              {managerStats.recentTasks.length > 0 ? (
-                <div className="space-y-4">
-                  {managerStats.recentTasks.map((task) => (
-                    <div key={task.id} className="border-2 border-black p-4 hover:bg-gray-50 transition-colors flex justify-between items-center">
-                      <div>
-                        <h4 className="font-bold text-lg">{task.titulo}</h4>
-                        <p className="text-sm text-gray-600">{task.descripcion}</p>
-                      </div>
-                      <span className={`px-3 py-1 text-xs font-bold border-2 border-black uppercase ${task.estado === 0 ? 'bg-brand-yellow-400' :
-                          task.estado === 1 ? 'bg-brand-cyan-400' :
-                            task.estado === 2 ? 'bg-green-400' : 'bg-red-400'
-                        }`}>
-                        {task.estado === 0 ? 'Pendiente' :
-                          task.estado === 1 ? 'En Progreso' :
-                            task.estado === 2 ? 'Finalizada' : 'Cancelada'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500 font-bold italic">No hay tareas recientes.</p>
-              )}
-            </div>
-          </>
-        ) : null}
-      </div>
+        {/* Create Task Modal */}
+        <CreateTaskModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSubmit={handleCreateTask}
+          usuarios={[]}
+        />
+      </>
     );
   }
 

@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
 import { authService, usuariosService } from '../services/api';
 import { AuthContext } from '../hooks/useAuth';
+import { handleNetworkError, isNetworkError, showConnectionStatus } from '../utils/devUtils';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Show connection status in development
+  useEffect(() => {
+    showConnectionStatus();
+  }, []);
 
   // Verificar si hay sesión activa al cargar
   useEffect(() => {
@@ -19,12 +25,24 @@ export const AuthProvider = ({ children }) => {
           setIsAuthenticated(true);
           
           // Opcional: Validar el token obteniendo info del usuario
+          // Solo si no hay errores de red
           try {
             const userData = await usuariosService.getMe();
             setUser(userData);
             localStorage.setItem('user', JSON.stringify(userData));
           } catch (error) {
-            console.error('Error validando token:', error);
+            handleNetworkError(error, 'Error validando token');
+            // Si es un error de red, mantener el usuario local
+            if (isNetworkError(error)) {
+              console.warn('Sin conexión al servidor, manteniendo sesión local');
+            } else {
+              // Si es un error de autenticación, limpiar sesión
+              localStorage.removeItem('accessToken');
+              localStorage.removeItem('refreshToken');
+              localStorage.removeItem('user');
+              setUser(null);
+              setIsAuthenticated(false);
+            }
           }
         }
       } catch (error) {
